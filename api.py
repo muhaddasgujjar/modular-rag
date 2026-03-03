@@ -35,21 +35,23 @@ async def chat_endpoint(request: ChatRequest):
     if not message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
-    # Retrieve memory history for this session
+    # Initialize session if it doesn't exist
     if session_id not in sessions:
         sessions[session_id] = []
-    
-    history = sessions[session_id]
+
+    # Step 1: Append the user's message to history FIRST
+    sessions[session_id].append({"role": "user", "content": message})
+
+    # Step 2: Pass the full chat_history (including current message) to the engine
+    chat_history = sessions[session_id]
 
     try:
-        # Pass the message and history to the async orchestrator
-        result = await process_query(user_input=message, session_id=session_id, history=history)
+        result = await process_query(chat_history=chat_history, session_id=session_id)
         
         reply = result.get("reply", "")
         tool_used = result.get("tool_used", "none")
         
-        # Append this turn to memory
-        sessions[session_id].append({"role": "user", "content": message})
+        # Step 3: Append the AI response to history
         sessions[session_id].append({"role": "assistant", "content": reply})
         
         return {
@@ -61,4 +63,6 @@ async def chat_endpoint(request: ChatRequest):
         }
         
     except Exception as e:
+        # Remove the user message from history if the engine failed
+        sessions[session_id].pop()
         raise HTTPException(status_code=500, detail=str(e))

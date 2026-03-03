@@ -39,6 +39,19 @@ class GroqLLM:
         
         return response.choices[0].message.content
 
+    async def generate_with_messages(self, messages: list, model: str = "llama-3.3-70b-versatile") -> str:
+        """
+        Accepts a pre-built messages array (e.g. [system] + chat_history) and calls Groq directly.
+        Used by the synthesize_response step for full conversational context.
+        """
+        response = await self.client.chat.completions.create(
+            messages=messages,
+            model=model,
+            temperature=0.7,
+        )
+        return response.choices[0].message.content
+
+
     async def generate_json(self, prompt: str, system_prompt: str, model: str = "llama-3.1-8b-instant") -> dict:
         """
         Generate a forced JSON response asynchronously, parsed into a Python dictionary.
