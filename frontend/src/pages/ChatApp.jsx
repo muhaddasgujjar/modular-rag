@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Menu, MessageSquare, Plus, Send, RefreshCw, Cpu, Database, CloudRain, Globe, Link2, ShieldAlert, PanelLeftClose, PanelLeftOpen, Settings, Zap, MessageCircle, CheckCircle, XCircle, Loader } from 'lucide-react';
+import { Menu, MessageSquare, Plus, Send, RefreshCw, Cpu, Database, CloudRain, ShieldAlert, PanelLeftClose, PanelLeftOpen, Settings, Zap, MessageCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useChat } from '../hooks/useChat';
@@ -11,11 +11,10 @@ const renderToolIcon = (toolName) => {
   const iconProps = { size: 14, className: "text-slate-400 ml-2" };
 
   switch (toolName) {
-    case 'github_tool':
     case 'rag_tool':
       return <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-medium text-blue-400"><Database {...iconProps} className="text-blue-500" size={12} /> Salesforce RAG</div>;
-    case 'web_tool':
-      return <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-medium text-emerald-400"><Globe {...iconProps} className="text-emerald-500" size={12} /> Web Extraction</div>;
+    case 'weather_tool':
+      return <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-[10px] font-medium text-sky-400"><CloudRain {...iconProps} className="text-sky-500" size={12} /> Weather API</div>;
     case 'out_of_bounds':
       return <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-[10px] font-medium text-rose-400"><ShieldAlert {...iconProps} className="text-rose-500" size={12} /> Guardrail Triggered</div>;
     default:
@@ -31,36 +30,6 @@ function App() {
   const [chatSessions, setChatSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
 
-  // URL Extractor panel state
-  const [urlInput, setUrlInput] = useState('');
-  const [urlStatus, setUrlStatus] = useState(null); // null | 'loading' | 'success' | 'error'
-  const [urlMessage, setUrlMessage] = useState('');
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-  const handleUrlIngest = async () => {
-    if (!urlInput.trim()) return;
-    setUrlStatus('loading');
-    setUrlMessage('');
-    try {
-      const res = await fetch(apiUrl + '/ingest/url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: urlInput.trim() })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setUrlStatus('success');
-        setUrlMessage(data.message || 'URL ingested successfully!');
-        setUrlInput('');
-      } else {
-        setUrlStatus('error');
-        setUrlMessage(data.detail || 'Failed to ingest URL.');
-      }
-    } catch (err) {
-      setUrlStatus('error');
-      setUrlMessage('Could not connect to the server.');
-    }
-  };
 
   // Auto-close sidebar on small screens
   useEffect(() => {
@@ -339,56 +308,6 @@ function App() {
           </p>
         </div>
 
-      </div>
-      {/* Web URL Extractor Right Panel */}
-      <div className="hidden lg:flex flex-col shrink-0 w-[240px] h-full bg-[#020617] border-l border-slate-800/50 p-4 gap-4">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-            <Globe size={14} className="text-emerald-400" />
-          </div>
-          <span className="text-xs font-semibold text-slate-300 tracking-wide">Web URL Extractor</span>
-        </div>
-        <p className="text-[11px] text-slate-500 leading-relaxed -mt-2">Paste any public URL to extract and analyze its content with the AI.</p>
-        <div className="flex flex-col gap-2">
-          <input
-            type="text"
-            value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleUrlIngest()}
-            disabled={urlStatus === 'loading'}
-            placeholder="https://example.com/article"
-            className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-200 placeholder-slate-600 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition disabled:opacity-50"
-          />
-          <button
-            onClick={handleUrlIngest}
-            disabled={!urlInput.trim() || urlStatus === 'loading'}
-            className="flex items-center justify-center gap-2 w-full py-2 rounded-xl text-xs font-semibold transition-all bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {urlStatus === 'loading' ? (
-              <><Loader size={12} className="animate-spin" /> Extracting...</>
-            ) : (
-              <><Link2 size={12} /> Extract & Ingest</>
-            )}
-          </button>
-        </div>
-        {urlStatus === 'success' && (
-          <div className="flex items-start gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-            <CheckCircle size={13} className="text-emerald-400 shrink-0 mt-0.5" />
-            <span className="text-[11px] text-emerald-300 leading-snug">{urlMessage}</span>
-          </div>
-        )}
-        {urlStatus === 'error' && (
-          <div className="flex items-start gap-2 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20">
-            <XCircle size={13} className="text-rose-400 shrink-0 mt-0.5" />
-            <span className="text-[11px] text-rose-300 leading-snug">{urlMessage}</span>
-          </div>
-        )}
-        {urlStatus === 'success' && (
-          <p className="text-[11px] text-slate-500 leading-relaxed">You can now ask the AI about this page in the chat. e.g. "What does this article say?"</p>
-        )}
-        <div className="mt-auto pt-4 border-t border-slate-800/50">
-          <p className="text-[10px] text-slate-600 leading-relaxed">Content is extracted, chunked, and stored in your ChromaDB vector store for AI retrieval.</p>
-        </div>
       </div>
 
     </div>
