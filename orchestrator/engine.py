@@ -66,9 +66,9 @@ async def process_query(user_input: str, session_id: str = "default", history: l
     print("  [Orchestrator] Initializing Groq Client...")
     llm = GroqLLM()
     
-    # Step 1: Route
+    # Step 1: Route (with conversation history for context-aware routing)
     print("  [Orchestrator] Routing query...")
-    route_data = await route_query(user_input)
+    route_data = await route_query(user_input, history=history)
     tool_name = route_data.get("tool_selection", "none")
     print(f"  [Orchestrator] Route selected: {tool_name}")
     print(f"  [Orchestrator] Reasoning: {route_data.get('reasoning')}")
