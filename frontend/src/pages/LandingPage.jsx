@@ -191,7 +191,7 @@ export default function LandingPage() {
                     </motion.div>
 
                     {/* Floating 3D Graphic */}
-                    <div className="w-full lg:w-1/2 h-[400px] sm:h-[440px] lg:h-[600px] relative" style={{ perspective: '1200px' }}>
+                    <div className="w-full lg:w-1/2 h-[480px] sm:h-[460px] lg:h-[600px] relative" style={{ perspective: '1200px' }}>
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -241,7 +241,7 @@ export default function LandingPage() {
                             <motion.div
                                 animate={{ y: [0, -10, 0] }}
                                 transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 2 }}
-                                className="absolute top-[66%] sm:top-[68%] lg:top-[65%] right-[2%] sm:right-[5%] lg:right-[15%] w-[220px] sm:w-[260px] lg:w-[300px] bg-[#020617]/90 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_30px_60px_rgba(0,0,0,0.6)] border border-purple-500/30 z-10 relative overflow-hidden group"
+                                className="absolute top-[57%] sm:top-[60%] lg:top-[65%] right-[2%] sm:right-[5%] lg:right-[15%] w-[220px] sm:w-[260px] lg:w-[300px] bg-[#020617]/90 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_30px_60px_rgba(0,0,0,0.6)] border border-purple-500/30 z-10 relative overflow-hidden group"
                                 style={{ transform: 'rotateX(20deg) rotateY(-20deg) translateZ(-100px)' }}
                             >
                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-purple-600/10 to-transparent"></div>
