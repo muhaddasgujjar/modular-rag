@@ -9,3 +9,4 @@ fastapi
 uvicorn
 gunicorn
 pydantic
+beautifulsoup4

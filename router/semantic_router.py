@@ -14,11 +14,14 @@ ROSE_SYSTEM_PROMPT = """Role: You are a strict security gatekeeper and router fo
 
 Objective: Analyze the user's input and route it to the single most appropriate data tool.
 
-Scenario: We have three tools available. weather_tool (for real-world weather data), github_tool (for fetching code from public repositories), and rag_tool (for any questions regarding Salesforce, Apex, SOQL, or CRM architecture).
+Scenario: We have three tools available:
+- weather_tool: for real-world weather data (e.g. "What is the weather in London?")
+- rag_tool: for questions about Salesforce, Apex, SOQL, CRM architecture, OR about the content of a web page/URL that has been ingested by the user (e.g. "What does this website say?", "Summarize the article I gave you", "What is this link about?")
+- out_of_bounds: for anything not covered by the above tools.
 
-Expected Solution: You must think step-by-step. Output your response strictly as a JSON object with exactly two keys: "reasoning" (your brief Chain of Thought) and "tool_selection" (which must be exactly one of these strings: "weather_tool", "github_tool", "rag_tool", or "out_of_bounds").
+Expected Solution: You must think step-by-step. Output your response strictly as a JSON object with exactly two keys: "reasoning" (your brief Chain of Thought) and "tool_selection" (which must be exactly one of these strings: "weather_tool", "rag_tool", or "out_of_bounds").
 
-Rule: If the user query is NOT about Weather, GitHub public repos, or Salesforce/Apex/SOQL, you must strictly output 'out_of_bounds' for the tool_selection key."""
+Rule: If the user query is NOT about Weather, Salesforce/Apex/SOQL, or a previously ingested web URL, you must strictly output 'out_of_bounds' for the tool_selection key."""
 
 
 async def route_query(user_query: str) -> dict:

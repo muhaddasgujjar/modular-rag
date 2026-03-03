@@ -26,6 +26,25 @@ class ChatRequest(BaseModel):
     session_id: str
     message: str
 
+class UrlIngestRequest(BaseModel):
+    url: str
+
+@app.post("/ingest/url")
+async def ingest_url_endpoint(request: UrlIngestRequest):
+    url = request.url
+    if not url.strip():
+        raise HTTPException(status_code=400, detail="URL cannot be empty")
+    
+    try:
+        from db.ingestion import ingest_web_url
+        chunk_count = ingest_web_url(url)
+        return {
+            "status": "success",
+            "message": f"Successfully ingested {chunk_count} chunks from {url}"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
     session_id = request.session_id

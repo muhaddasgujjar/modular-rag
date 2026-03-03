@@ -9,12 +9,11 @@ if project_root not in sys.path:
 from llm.groq_client import GroqLLM
 from router.semantic_router import route_query
 from tools.weather_tool import get_weather
-from tools.github_tool import get_github_file
 from tools.rag_tool import query_salesforce_knowledge
 
 
 def get_out_of_bounds_message():
-    return "I am a specialized Salesforce AI Architect. I cannot assist with queries outside of Salesforce, Weather, or GitHub."
+    return "I am a specialized Salesforce AI Architect. I can answer questions about Salesforce/Apex, real-time weather, or any web page you have ingested."
 
 async def extract_parameters(query: str, tool_name: str, llm: GroqLLM) -> dict:
     """
@@ -27,11 +26,6 @@ async def extract_parameters(query: str, tool_name: str, llm: GroqLLM) -> dict:
     elif tool_name == "weather_tool":
         system_prompt = """You are a parameter extraction bot. Extract the city name from the user's weather query.
 Output strictly as JSON with a single key "city_name". Example: {"city_name": "London"}"""
-        
-    elif tool_name == "github_tool":
-        system_prompt = """You are a parameter extraction bot. Extract the GitHub repository owner, repository name, and file path from the user's query.
-Output strictly as JSON with keys "repo_owner", "repo_name", and "file_path". 
-Example for 'pull requirements.txt from langchain-ai/langchain': {"repo_owner": "langchain-ai", "repo_name": "langchain", "file_path": "requirements.txt"}"""
     
     else:
         return {}
@@ -87,7 +81,7 @@ async def process_query(user_input: str, session_id: str = "default", history: l
     if tool_name == "out_of_bounds":
         return {"reply": get_out_of_bounds_message(), "tool_used": "none"}
         
-    if tool_name == "none" or tool_name not in ["weather_tool", "github_tool", "rag_tool"]:
+    if tool_name == "none" or tool_name not in ["weather_tool", "rag_tool"]:
         return {"reply": "I'm sorry, I couldn't determine which tool to use for that query.", "tool_used": "none"}
         
     # Step 2: Extract Parameters
@@ -100,12 +94,6 @@ async def process_query(user_input: str, session_id: str = "default", history: l
     tool_data = {}
     if tool_name == "weather_tool":
         tool_data = await get_weather(params.get("city_name", ""))
-    elif tool_name == "github_tool":
-        tool_data = await get_github_file(
-            params.get("repo_owner", ""), 
-            params.get("repo_name", ""), 
-            params.get("file_path", "")
-        )
     elif tool_name == "rag_tool":
         tool_data = await query_salesforce_knowledge(params.get("user_query", user_input))
         
