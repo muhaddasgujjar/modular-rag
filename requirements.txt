@@ -10,3 +10,4 @@ uvicorn
 gunicorn
 pydantic
 beautifulsoup4
+lxml
