@@ -88,21 +88,26 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0f172a] text-slate-200 font-sans overflow-hidden selection:bg-indigo-500/30">
+    <div className="flex h-[100dvh] bg-[#0f172a] text-slate-200 font-sans overflow-hidden selection:bg-indigo-500/30">
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile Sidebar Overlay — covers full screen behind off-canvas sidebar */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[5] md:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - Dark Aesthetic */}
+      {/* Sidebar — off-canvas on mobile (z-50, slides in), static column on desktop */}
       <div
-        className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } fixed md:relative md:translate-x-0 z-10 ${sidebarOpen ? 'md:w-[260px]' : 'md:w-0'
-          } w-[260px] h-full transition-all duration-300 ease-in-out bg-[#020617] text-slate-300 flex flex-col shrink-0 border-r border-slate-800/50`}
+        className={`
+          fixed inset-y-0 left-0 z-50 w-64 shadow-xl
+          md:relative md:z-auto md:shadow-none md:inset-auto
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:translate-x-0 ${sidebarOpen ? 'md:w-[260px]' : 'md:w-0'}
+          h-full transition-transform duration-300 ease-in-out
+          bg-[#020617] text-slate-300 flex flex-col shrink-0 border-r border-slate-800/50
+        `}
       >
         <div className="p-3 flex items-center justify-between gap-1">
           <button
@@ -173,15 +178,18 @@ function App() {
 
         {/* Minimalist Header */}
         <header className="h-14 flex items-center px-4 shrink-0 select-none absolute top-0 left-0 right-0 z-20 bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-800/50 shadow-sm">
+          {/* Hamburger — shows on mobile when sidebar is closed */}
           {!sidebarOpen && (
             <button
               onClick={() => setSidebarOpen(true)}
               className="p-2 -ml-2 mr-2 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-[#1e293b] transition"
               title="Open sidebar"
+              aria-label="Open sidebar"
             >
-              <PanelLeftOpen size={20} />
+              <Menu size={24} />
             </button>
           )}
+          {/* Close button — visible on mobile when sidebar is open (handled inside sidebar), show panel-close on desktop */}
           {sidebarOpen && (
             <button
               onClick={() => setSidebarOpen(false)}
@@ -209,7 +217,7 @@ function App() {
             <div className="w-full">
               {messages.map((msg, index) => (
                 <div key={index} className={`w-full ${msg.role === 'ai' ? 'bg-[#1e293b]/30 border-y border-slate-800/50' : 'bg-transparent'}`}>
-                  <div className="max-w-3xl mx-auto flex gap-4 md:gap-6 px-4 py-6 md:py-8">
+                  <div className="max-w-3xl mx-auto flex gap-3 md:gap-6 px-3 md:px-4 py-4 md:py-6">
 
                     {/* Avatar */}
                     <div className="shrink-0 pt-1">
@@ -240,8 +248,8 @@ function App() {
                         </div>
                       )}
 
-                      {/* Message Content */}
-                      <div className={`prose prose-sm md:prose-base prose-invert prose-slate max-w-none text-slate-300 leading-relaxed ${msg.role === 'user' ? 'whitespace-pre-wrap text-slate-200' : ''}`}>
+                      {/* Message Content — break-words prevents horizontal overflow on mobile */}
+                      <div className={`prose prose-sm md:prose-base prose-invert prose-slate max-w-none text-slate-300 leading-relaxed break-words overflow-hidden ${msg.role === 'user' ? 'whitespace-pre-wrap text-slate-200' : ''}`}>
                         {msg.role === 'user' ? (
                           msg.content
                         ) : (
@@ -258,7 +266,7 @@ function App() {
               {/* Loading Indicator */}
               {isLoading && (
                 <div className="w-full bg-[#1e293b]/30 border-y border-slate-800/50">
-                  <div className="max-w-3xl mx-auto flex gap-4 md:gap-6 px-4 py-6 md:py-8">
+                  <div className="max-w-3xl mx-auto flex gap-3 md:gap-6 px-3 md:px-4 py-4 md:py-6">
                     <div className="shrink-0 pt-1">
                       <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md border border-indigo-400/30">
                         <Cpu size={18} />
@@ -279,8 +287,8 @@ function App() {
           )}
         </div>
 
-        {/* Input Area - Absolute positioned at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 pt-6 pb-6 px-4 bg-gradient-to-t from-[#0f172a] via-[#0f172a] to-transparent">
+        {/* Input Area — safe-area bottom padding for iOS home indicator */}
+        <div className="absolute bottom-0 left-0 right-0 pt-4 pb-4 md:pb-6 px-3 md:px-4 bg-gradient-to-t from-[#0f172a] via-[#0f172a] to-transparent" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }} >
           <div className="max-w-3xl mx-auto relative group">
             <textarea
               value={inputValue}
@@ -294,10 +302,10 @@ function App() {
             <button
               onClick={handleSend}
               disabled={!inputValue.trim() || isLoading}
-              className={`absolute right-2.5 bottom-2.5 p-2 rounded-xl transition-all flex items-center justify-center
+              className={`absolute right-2 bottom-2 p-3 md:p-2 rounded-xl transition-all flex items-center justify-center
                 ${!inputValue.trim() || isLoading
                   ? 'bg-slate-800 text-slate-600'
-                  : 'bg-indigo-600 shadow-md shadow-indigo-500/25 text-white hover:bg-indigo-500 hover:-translate-y-0.5'
+                  : 'bg-indigo-600 shadow-md shadow-indigo-500/25 text-white hover:bg-indigo-500 hover:-translate-y-0.5 active:scale-95'
                 }`}
             >
               {isLoading ? <RefreshCw size={18} className="animate-spin" /> : <Send size={18} className={`${inputValue.trim() && !isLoading ? 'ml-0.5' : ''}`} />}
