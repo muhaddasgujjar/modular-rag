@@ -25,7 +25,9 @@ class GroqLLM:
         messages = [{"role": "system", "content": system_prompt}]
         
         if history:
-            messages.extend(history)
+            # Keep only the last 20 messages (10 back-and-forth turns) to stay within token limits
+            trimmed_history = history[-20:]
+            messages.extend(trimmed_history)
             
         messages.append({"role": "user", "content": prompt})
         

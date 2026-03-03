@@ -44,22 +44,17 @@ async def synthesize_response(query: str, tool_data: dict, llm: GroqLLM, history
     """
     import json
     
-    system_prompt = """You are a highly capable AI assistant acting as the brain of a Modular RAG architecture.
-You have been provided with the user's original query and the raw JSON data returned by a specialized tool.
-Your job is to synthesize this raw data into a clear, helpful, and natural language response that directly answers the user's question.
-Do not mention the JSON structure or the backend tools. Just answer the question directly using the provided data.
+    system_prompt = """You are a highly capable AI assistant for Salesforce architecture.
+You have full memory of this conversation. Use it to give coherent, contextual responses.
+You are provided with the user's latest message and data from a specialized tool.
+Synthesize the tool data into a natural, clear answer. Do not mention JSON or backend tools."""
 
-CRITICAL INSTRUCTION: You are provided with the conversation history. Before answering, check if you have already answered the user's exact question or provided this specific information earlier in the chat. If you have, DO NOT re-explain the answer. Instead, reply strictly with a polite variation of: 'I already provided this information earlier in our conversation. Please refer to my previous reply above.'"""
-    
-    prompt = f"""User Query: {query}
-
-Raw Tool Data:
-{json.dumps(tool_data, indent=2)}
-
-Synthesize a response:"""
+    # Build the current turn's user message with tool context appended
+    current_prompt = f"User: {query}\n\nRelevant Data:\n{json.dumps(tool_data, indent=2)}\n\nRespond naturally:"
 
     try:
-        return await llm.generate_text(prompt=prompt, system_prompt=system_prompt, history=history)
+        # Pass history so LLM maintains conversational context across turns
+        return await llm.generate_text(prompt=current_prompt, system_prompt=system_prompt, history=history)
     except Exception as e:
         return f"Error synthesizing response: {str(e)}"
 
