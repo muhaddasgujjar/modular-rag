@@ -1,0 +1,59 @@
+﻿Testing get_weather('London')...
+
+Result:
+{
+  "status": "success",
+  "data": {
+    "city": "London, United Kingdom",
+    "temperature": "13.2 \u00b0C",
+    "conditions": "Clear/Sunny"
+  }
+}
+Testing get_github_file('tiangolo', 'fastapi', 'README.md')...
+
+Result:
+{
+  "status": "success",
+  "data": {
+    "file_name": "README.md",
+    "content": "<p align=\"center\">\n  <a href=\"https://fastapi.tiangolo.com\"><img src=\"https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png\" alt=\"FastAPI\"></a>\n</p>\n<p align=\"center\">\n    <em>FastAPI framework, high performance, easy to learn, fast to code, ready for production</em>\n</p>\n<p align=\"center\">\n<a ... [TRUNCATED FOR TERMINAL OUTPUT]"
+  }
+}
+Testing query_salesforce_knowledge('What are the governor limits for SOQL queries?')...
+
+Result:
+{
+  "status": "success",
+  "data": {
+    "retrieved_chunks": [
+      {
+        "text": "such as the limit on maximum CPU time.  \nNote:  \n**\u2022** These cross-namespace limits apply only to namespaces in certified managed packages.  \n**\u2022** Namespaces in non-certified packages don\u2019t have their own separate governor limits. The resources that they use continue\nto count against the same governor limits used by the org's custom code.  \n351  \nApex Developer Guide Apex Transactions and Governor Limits  \nThis table lists the cumulative cross-namespace limits.  \n**Description** **Cumulative**\n**Cross-Namespace Limit**  \nTotal number of SOQL queries issued 1,100  \nTotal number of records retrieved by `Database.getQueryLocator` 110,000  \nTotal number of SOSL queries issued 220  \nTotal number of DML statements issued 1,650  \nTotal number of callouts (HTTP requests or web services calls) in a transaction 1,100  \nTotal number of `sendEmail` methods allowed 110  \nAll per-transaction limits count separately for certified managed packages except for:  \n**\u2022** The total heap size",
+        "metadata": {
+          "Header 2": "APEX DEVELOPER GUIDE",
+          "source": "salesforce_apex_developer_guide.pdf",
+          "Header 3": "Running Apex",
+          "Header 1": "Apex Developer Guide"
+        }
+      },
+      {
+        "text": "licenses, the concurrent long-running Apex requests limit is set at 10, which is the minimum floor limit.  \n353  \nApex Developer Guide Apex Transactions and Governor Limits  \nStatic Apex Limits  \n**Description** **Limit**  \nDefault timeout of callouts (HTTP requests or Web services calls) in a transaction 10 seconds  \nMaximum size of callout request or response (HTTP request or Web services call) [1] 6 MB for synchronous Apex or\n12 MB for asynchronous Apex  \nMaximum SOQL query run time before Salesforce cancels the transaction 120 seconds  \nMaximum number of class and trigger code units in a deployment of Apex 7500  \nApex trigger batch size [2] 200  \nFor loop list batch size 200  \nMaximum number of records returned for a Batch Apex query in `Database.QueryLocator` 50 million  \n1 The HTTP request and response sizes count towards the total heap size.  \n2 The Apex trigger batch size for platform events and Change Data Capture events is 2,000. The trigger batch size doesn\u2019t apply when",
+        "metadata": {
+          "Header 2": "APEX DEVELOPER GUIDE",
+          "source": "salesforce_apex_developer_guide.pdf",
+          "Header 1": "Apex Developer Guide",
+          "Header 3": "Running Apex"
+        }
+      },
+      {
+        "text": "can have a maximum value of 2,000. If set to a higher value, Salesforce chunks the records returned by the QueryLocator into smaller\nbatches of up to 2,000 records. If the `start` method of the batch class returns an iterable, the scope parameter value has no upper\nlimit. However, if you use a high number, you can run into other limits. The optimal scope size is a factor of 2000, for example, 100,\n200, 400 and so on.  \n**\u2022** If no size is specified with the optional _`scope`_ parameter of `Database.executeBatch`, Salesforce chunks the records returned\nby the `start` method into batches of 200 records. The system then passes each batch to the `execute` method. Apex governor\nlimits are reset for each execution of `execute` .  \n**\u2022** The `start`, `execute`, and `finish` methods can implement up to 100 callouts each.  \n317  \nApex Developer Guide Invoking Apex",
+        "metadata": {
+          "source": "salesforce_apex_developer_guide.pdf",
+          "Header 2": "APEX DEVELOPER GUIDE",
+          "Header 1": "Apex Developer Guide",
+          "Header 3": "Running Apex"
+        }
+      }
+    ],
+    "query": "What are the governor limits for SOQL queries?"
+  }
+}

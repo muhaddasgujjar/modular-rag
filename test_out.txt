@@ -1,0 +1,40 @@
+﻿Starting Terminal Audit for Phase 6...
+
+
+[Request] Session: 'test_session_1' | Message: 'What are the governor limits for SOQL queries in Salesforce?'
+
+[Request] Session: 'test_session_2' | Message: 'Give me a recipe for chocolate cake'
+
+[Response] Session: 'test_session_2'
+I am a specialized Salesforce AI Architect. I cannot assist with queries outside of Salesforce, Weather, or GitHub.
+
+[Response] Session: 'test_session_1'
+The governor limits for SOQL queries in Salesforce are as follows:
+
+- The total number of SOQL queries issued is limited to 1,100 per transaction.
+- The maximum number of records retrieved by `Database.getQueryLocator` is 110,000.
+- The maximum SOQL query run time before Salesforce cancels the transaction is 120 seconds.
+- The maximum number of records returned for a Batch Apex query in `Database.QueryLocator` is 50 million, but it's typically chunked into smaller batches of up to 2,000 records.
+
+Additionally, the cross-namespace limits for SOQL queries are:
+- Total number of SOQL queries issued: 1,100
+- Total number of records retrieved by `Database.getQueryLocator`: 110,000
+
+These limits apply to certified managed packages, and it's essential to be mindful of them to avoid hitting governor limits and ensure optimal performance.
+
+[Request] Session: 'test_session_1' | Message: 'And what is the cross-namespace limit for them?'
+
+[Response] Session: 'test_session_1'
+The cross-namespace limit for SOQL queries in Salesforce is 1,100. This means that a single transaction can perform up to 1,100 SOQL queries across an unlimited number of certified namespaces, as long as no single namespace exceeds its per-namespace limit of 100 queries. 
+
+Additionally, the cumulative cross-namespace limits are as follows:
+- Total number of SOQL queries issued: 1,100
+- Total number of records retrieved by `Database.getQueryLocator`: 110,000
+- Total number of SOSL queries issued: 220
+- Total number of DML statements issued: 1,650
+- Total number of callouts (HTTP requests or web services calls) in a transaction: 1,100
+- Total number of `sendEmail` methods allowed: 110
+
+Note that these cross-namespace limits apply only to namespaces in certified managed packages. Namespaces in non-certified packages do not have their own separate governor limits and continue to count against the same governor limits used by the org's custom code.
+
+Audit complete.

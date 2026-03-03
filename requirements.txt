@@ -1,0 +1,7 @@
+chromadb
+groq
+requests
+python-dotenv
+langchain-text-splitters
+langchain-community
+pymupdf4llm

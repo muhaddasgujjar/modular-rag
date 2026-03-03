@@ -1,0 +1,119 @@
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.join(current_dir, "..")
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from llm.groq_client import GroqLLM
+from router.semantic_router import route_query
+from tools.weather_tool import get_weather
+from tools.github_tool import get_github_file
+from tools.rag_tool import query_salesforce_knowledge
+
+
+def get_out_of_bounds_message():
+    return "I am a specialized Salesforce AI Architect. I cannot assist with queries outside of Salesforce, Weather, or GitHub."
+
+async def extract_parameters(query: str, tool_name: str, llm: GroqLLM) -> dict:
+    """
+    Uses the 8B model to extract specific parameters required by the selected tool.
+    """
+    if tool_name == "rag_tool":
+        # RAG tool just needs the raw query
+        return {"user_query": query}
+        
+    elif tool_name == "weather_tool":
+        system_prompt = """You are a parameter extraction bot. Extract the city name from the user's weather query.
+Output strictly as JSON with a single key "city_name". Example: {"city_name": "London"}"""
+        
+    elif tool_name == "github_tool":
+        system_prompt = """You are a parameter extraction bot. Extract the GitHub repository owner, repository name, and file path from the user's query.
+Output strictly as JSON with keys "repo_owner", "repo_name", and "file_path". 
+Example for 'pull requirements.txt from langchain-ai/langchain': {"repo_owner": "langchain-ai", "repo_name": "langchain", "file_path": "requirements.txt"}"""
+    
+    else:
+        return {}
+
+    try:
+        return await llm.generate_json(prompt=query, system_prompt=system_prompt)
+    except Exception as e:
+        print(f"Error extracting parameters: {e}")
+        return {}
+
+
+async def synthesize_response(query: str, tool_data: dict, llm: GroqLLM, history: list = None) -> str:
+    """
+    Takes the raw JSON output from the tool and the original query, and uses the 70B model
+    to synthesize a natural language response.
+    """
+    import json
+    
+    system_prompt = """You are a highly capable AI assistant acting as the brain of a Modular RAG architecture.
+You have been provided with the user's original query and the raw JSON data returned by a specialized tool.
+Your job is to synthesize this raw data into a clear, helpful, and natural language response that directly answers the user's question.
+Do not mention the JSON structure or the backend tools. Just answer the question directly using the provided data.
+
+CRITICAL INSTRUCTION: You are provided with the conversation history. Before answering, check if you have already answered the user's exact question or provided this specific information earlier in the chat. If you have, DO NOT re-explain the answer. Instead, reply strictly with a polite variation of: 'I already provided this information earlier in our conversation. Please refer to my previous reply above.'"""
+    
+    prompt = f"""User Query: {query}
+
+Raw Tool Data:
+{json.dumps(tool_data, indent=2)}
+
+Synthesize a response:"""
+
+    try:
+        return await llm.generate_text(prompt=prompt, system_prompt=system_prompt, history=history)
+    except Exception as e:
+        return f"Error synthesizing response: {str(e)}"
+
+
+async def process_query(user_input: str, session_id: str = "default", history: list = None) -> dict:
+    """
+    Main orchestration pipeline: Router -> Parameter Extract -> Tool -> Synthesize.
+    """
+    print("  [Orchestrator] Initializing Groq Client...")
+    llm = GroqLLM()
+    
+    # Step 1: Route
+    print("  [Orchestrator] Routing query...")
+    route_data = await route_query(user_input)
+    tool_name = route_data.get("tool_selection", "none")
+    print(f"  [Orchestrator] Route selected: {tool_name}")
+    print(f"  [Orchestrator] Reasoning: {route_data.get('reasoning')}")
+    
+    if tool_name == "out_of_bounds":
+        return {"reply": get_out_of_bounds_message(), "tool_used": "none"}
+        
+    if tool_name == "none" or tool_name not in ["weather_tool", "github_tool", "rag_tool"]:
+        return {"reply": "I'm sorry, I couldn't determine which tool to use for that query.", "tool_used": "none"}
+        
+    # Step 2: Extract Parameters
+    print(f"  [Orchestrator] Extracting parameters for {tool_name}...")
+    params = await extract_parameters(user_input, tool_name, llm)
+    print(f"  [Orchestrator] Extracted params: {params}")
+    
+    # Step 3: Execute Tool
+    print("  [Orchestrator] Executing tool...")
+    tool_data = {}
+    if tool_name == "weather_tool":
+        tool_data = await get_weather(params.get("city_name", ""))
+    elif tool_name == "github_tool":
+        tool_data = await get_github_file(
+            params.get("repo_owner", ""), 
+            params.get("repo_name", ""), 
+            params.get("file_path", "")
+        )
+    elif tool_name == "rag_tool":
+        tool_data = await query_salesforce_knowledge(params.get("user_query", user_input))
+        
+    if tool_data.get("status") == "error":
+        return {"reply": f"I encountered an error while fetching data: {tool_data.get('message')}", "tool_used": tool_name}
+        
+    print("  [Orchestrator] Tool execution successful. Synthesizing final response...")
+    
+    # Step 4: Synthesize Response
+    final_response = await synthesize_response(user_input, tool_data, llm, history=history)
+    return {"reply": final_response, "tool_used": tool_name}

@@ -1,0 +1,31 @@
+================= TERMINAL AUDIT =================
+Total chunks successfully generated: 2826
+--------------------------------------------------
+Metadata of chunk index [150]:
+{'Header 1': 'Apex Developer Guide', 'Header 2': 'APEX DEVELOPER GUIDE', 'Header 3': 'Writing Apex', 'source': 'salesforce_apex_developer_guide.pdf'}
+
+Raw page_content of chunk index [150]:
+ACCOUNT a2;
+
+```  
+**ò** SOQL and SOSL statements are case- insensitive. For example:  
+```
+Account[] accts = [sELect ID From ACCouNT where nAme = 'fred'];
+
+```  
+Note: YouÆll learn more about sObjects, SOQL, and SOSL later in this guide.  
+36  
+Apex Developer Guide Data Types and Variables  
+Also note that Apex uses the same filtering semantics as SOQL, which is the basis for comparisons in the SOAP API and the Salesforce
+user interface. The use of these semantics can lead to some interesting behavior. For example, if an end-user generates a report based
+on a filter for values that come before 'm' in the alphabet (that is, values < 'm'), null fields are returned in the result. The rationale for this
+behavior is that users typically think of a field without a value as just a space character, rather than its actual `null` value. Consequently,
+in Apex, the following expressions all evaluate to `true` :  
+```
+String s;
+
+System.assert('a' == 'A');
+
+System.assert(s < 'b');
+==================================================
+

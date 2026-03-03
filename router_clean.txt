@@ -1,0 +1,33 @@
+﻿================== SEMANTIC ROUTER TERMINAL AUDIT ==================
+
+QUERY: "How do I write an asynchronous batch class in Apex?"
+ROUTER RESPONSE (JSON):
+{
+  "reasoning": [
+    "The user is asking about writing an asynchronous batch class in Apex.",
+    "Asynchronous batch classes in Apex are used for performing long-running operations in the background.",
+    "They are useful for improving system performance and responsiveness.",
+    "To write an asynchronous batch class, we need to extend the 'Batchable' interface and implement the 'execute' method.",
+    "However, since the user is asking about asynchronous batch classes, we need to use the 'Future' class to make it asynchronous."
+  ],
+  "tool_selection": "rag_tool"
+}
+------------------------------------------------------------
+
+QUERY: "Should I take an umbrella to Paris today?"
+ROUTER RESPONSE (JSON):
+{
+  "reasoning": "The user is asking about the weather in Paris, which suggests they want to know the current or forecasted weather conditions.",
+  "tool_selection": "weather_tool"
+}
+------------------------------------------------------------
+
+QUERY: "Can you pull the requirements.txt from the langchain-ai/langchain repo?"
+ROUTER RESPONSE (JSON):
+{
+  "reasoning": "The user's input is to pull the requirements.txt from the langchain-ai/langchain repo. This task involves fetching code from a public repository, which is a characteristic of the github_tool.",
+  "tool_selection": "github_tool"
+}
+------------------------------------------------------------
+
+====================================================================
